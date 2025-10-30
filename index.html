@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MongoDB Complete Learning Guide - Units 1 & 2</title>
+    <style>
+        @page {
+            margin: 1.2cm;
+            size: A4;
+        }
+        body {
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.7;
+            color: #1a1a1a;
+            background: #f9f9fb;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 210mm;
+            margin: 0 auto;
+            background: #fff;
+            padding: 2cm;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #27ae60;
+            font-size: 2.4em;
+            margin-bottom: 0.3em;
+            border-bottom: 4px solid #27ae60;
+            padding-bottom: 0.4em;
+        }
+        h2 {
+            color: #2c3e50;
+            font-size: 1.8em;
+            border-left: 6px solid #27ae60;
+            padding-left: 12px;
+            margin-top: 1.8em;
+            background: #eefaf2;
+            padding: 8px 12px;
+            border-radius: 0 4px 4px 0;
+        }
+        h3 {
+            color: #16a085;
+            font-size: 1.4em;
+            margin-top: 1.5em;
+            border-bottom: 1px dashed #bdc3c7;
+            padding-bottom: 4px;
+        }
+        h4 {
+            color: #2980b9;
+            font-size: 1.2em;
+            margin-top: 1.2em;
+        }
+        pre {
+            background: #2c3e50;
+            color: #f1f2f6;
+            padding: 1em;
+            border-radius: 6px;
+            overflow-x: auto;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 0.95em;
+            margin: 1em 0;
+            box-shadow: inset 0 0 5px rgba(0,0,0,0.3);
+        }
+        code {
+            background: #f1f2f6;
+            color: #c0392b;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 0.95em;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.2em 0;
+            font-size: 0.98em;
+        }
+        th {
+            background: #27ae60;
+            color: white;
+            padding: 10px;
+            text-align: left;
+            font-weight: 600;
+        }
+        td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            vertical-align: top;
+        }
+        tr:nth-child(even) {
+            background-color: #f8fffb;
+        }
+        ul, ol {
+            margin: 0.8em 0;
+            padding-left: 2.2em;
+        }
+        li {
+            margin: 0.4em 0;
+        }
+        .note {
+            background: #fffbe6;
+            border-left: 5px solid #f39c12;
+            padding: 12px;
+            margin: 1.2em 0;
+            border-radius: 0 4px 4px 0;
+            font-style: italic;
+        }
+        .tip {
+            background: #e8f4fd;
+            border-left: 5px solid #3498db;
+            padding: 12px;
+            margin: 1.2em 0;
+            border-radius: 0 4px 4px 0;
+        }
+        .example {
+            background: #f4f4f4;
+            border: 1px dashed #95a5a6;
+            padding: 12px;
+            margin: 1em 0;
+            border-radius: 4px;
+        }
+        .footer {
+            margin-top: 3cm;
+            text-align: center;
+            font-size: 0.9em;
+            color: #7f8c8d;
+            border-top: 1px solid #ddd;
+            padding-top: 1em;
+        }
+        @media print {
+            body, .container { background: white; box-shadow: none; }
+            pre { page-break-inside: avoid; }
+            .note, .tip, .example { page-break-inside: avoid; }
+            h2 { page-break-before: always; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+<h1>MongoDB Complete Learning Guide</h1>
+<p style="text-align:center; font-weight:bold; color:#7f8c8d;">Units 1 & 2 – Detailed Notes for Students</p>
+
+<!-- =================================== UNIT 1 =================================== -->
+<h2>Unit 1: Fundamentals of MongoDB</h2>
+
+<h3>Introduction to MongoDB</h3>
+<p>MongoDB is an open-source, <strong>document-oriented NoSQL database</strong> that stores data in <strong>BSON</strong> (Binary JSON) format. It is designed for scalability, flexibility, and performance in modern applications.</p>
+
+<div class="note">
+    <strong>NoSQL</strong> = Not Only SQL → Non-relational, schema-less, horizontal scaling.
+</div>
+
+<h4>Key Features of MongoDB</h4>
+<ul>
+    <li><strong>Schema Flexibility</strong>: Documents in the same collection can have different structures.</li>
+    <li><strong>Horizontal Scaling</strong>: Sharding distributes data across multiple servers.</li>
+    <li><strong>High Performance</strong>: Embedded documents reduce joins, supports indexing.</li>
+    <li><strong>Replication</strong>: Replica sets provide high availability and failover.</li>
+    <li><strong>Rich Query Language</strong>: Supports aggregation, text search, geospatial queries.</li>
+    <li><strong>Multi-Cloud Ready</strong>: Deploy on AWS, Azure, GCP, or on-premise.</li>
+</ul>
+
+<h4>Core Concepts</h4>
+<table>
+    <tr><th>Term</th><th>Description</th></tr>
+    <tr><td><strong>Document</strong></td><td>JSON-like BSON object. Basic unit of data.</td></tr>
+    <tr><td><strong>Collection</strong></td><td>Group of documents. Analogous to a table.</td></tr>
+    <tr><td><strong>Database</strong></td><td>Container for collections.</td></tr>
+    <tr><td><strong>_id</strong></td><td>Unique identifier for every document (like primary key).</td></tr>
+</table>
+
+<div class="example">
+    <strong>Example Document:</strong><br>
+    <pre>
+{
+  _id: ObjectId("671a3f2c1d5e9f001a2b3c4d"),
+  name: "Alice Johnson",
+  age: 28,
+  email: "alice@example.com",
+  hobbies: ["reading", "hiking"],
+  address: {
+    city: "New York",
+    zip: "10001"
+  }
+}
+    </pre>
+</div>
+
+<hr>
+
+<h3>Installation and Configuration of MongoDB</h3>
+<p>Install <strong>MongoDB Community Edition</strong> on <strong>Ubuntu 22.04 LTS</strong>.</p>
+
+<h4>Step-by-Step Installation</h4>
+<ol>
+    <li><strong>Install dependencies</strong>:
+        <pre>sudo apt-get install -y gnupg curl</pre>
+    </li>
+    <li><strong>Import MongoDB GPG key</strong>:
+        <pre>curl -fsSL https://pgp.mongodb.com/server-7.0.asc | sudo gpg -o /usr/share/keyrings/mongodb-server-7.0.gpg --dearmor</pre>
+    </li>
+    <li><strong>Add MongoDB repository</strong>:
+        <pre>echo "deb [ arch=amd64,arm64 signed-by=/usr/share/keyrings/mongodb-server-7.0.gpg ] https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/7.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-7.0.list</pre>
+    </li>
+    <li><strong>Update and install</strong>:
+        <pre>sudo apt-get update
+sudo apt-get install -y mongodb-org</pre>
+    </li>
+</ol>
+
+<h4>Start and Enable MongoDB Service</h4>
+<pre>
+sudo systemctl start mongod
+sudo systemctl enable mongod
+</pre>
+
+<h4>Configuration File: <code>/etc/mongod.conf</code></h4>
+<pre>
+# Network
+net:
+  port: 27017
+  bindIp: 127.0.0.1   # Change to 0.0.0.0 for remote access
+
+# Security (enable later)
+security:
+  authorization: enabled
+</pre>
+
+<h4>Create Admin User (in <code>mongosh</code>)</h4>
+<pre>
+use admin
+db.createUser({
+  user: "adminUser",
+  pwd: "YourStrongP@ssw0rd",
+  roles: [ { role: "root", db: "admin" } ]
+})
+</pre>
+
+<h4>Verify Installation</h4>
+<pre>
+mongod --version
+sudo systemctl status mongod
+mongosh -u adminUser -p --authenticationDatabase admin
+</pre>
+
+<div class="tip">
+    Use <strong>MongoDB Atlas</strong> (cloud) for zero setup: <a href="https://mongodb.com/atlas">mongodb.com/atlas</a>
+</div>
+
+<hr>
+
+<h3>Start and Stop MongoDB</h3>
+<table>
+    <tr><th>Action</th><th>Command</th></tr>
+    <tr><td>Start Service</td><td><code>sudo systemctl start mongod</code></td></tr>
+    <tr><td>Stop Service</td><td><code>sudo systemctl stop mongod</code></td></tr>
+    <tr><td>Restart</td><td><code>sudo systemctl restart mongod</code></td></tr>
+    <tr><td>Graceful Shutdown (from shell)</td><td><code>use admin; db.shutdownServer();</code></td></tr>
+</table>
+
+<hr>
+
+<h3>Connection with JavaScript and Node.js</h3>
+
+<h4>Setup Project</h4>
+<pre>
+mkdir mongo-app && cd mongo-app
+npm init -y
+npm install mongodb
+</pre>
+
+<h4>Basic Connection</h4>
+<pre>
+const { MongoClient } = require('mongodb');
+
+const uri = 'mongodb://localhost:27017';
+const client = new MongoClient(uri);
+
+async function connect() {
+  try {
+    await client.connect();
+    await client.db('admin').command({ ping: 1 });
+    console.log('Connected to MongoDB!');
+  } catch (err) {
+    console.error('Connection failed:', err);
+  } finally {
+    await client.close();
+  }
+}
+
+connect();
+</pre>
+
+<h4>Best Practice: Reuse Client</h4>
+<pre>
+let client;
+async function getClient() {
+  if (!client) {
+    client = new MongoClient(uri);
+    await client.connect();
+  }
+  return client;
+}
+</pre>
+
+<div class="note">
+    Use <strong>Mongoose</strong> for schema validation: <code>npm install mongoose</code>
+</div>
+
+<hr>
+
+<h3>Static vs Dynamic Schemas</h3>
+
+<table>
+    <tr><th>Type</th><th>Description</th><th>Use Case</th></tr>
+    <tr><td><strong>Dynamic (Default)</strong></td><td>No fixed structure. Documents can vary.</td><td>Rapid prototyping, logs, IoT</td></tr>
+    <tr><td><strong>Static (Enforced)</strong></td><td>Use validation rules or Mongoose.</td><td>User profiles, orders</td></tr>
+</table>
+
+<h4>Mongoose Schema Example</h4>
+<pre>
+const mongoose = require('mongoose');
+
+const userSchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  email: { type: String, unique: true, required: true },
+  age: { type: Number, min: 0 },
+  createdAt: { type: Date, default: Date.now }
+});
+
+const User = mongoose.model('User', userSchema);
+</pre>
+
+<hr>
+
+<h3>Data Modeling in MongoDB</h3>
+
+<h4>Two Main Patterns</h4>
+<table>
+    <tr><th>Pattern</th><th>When to Use</th><th>Example</th></tr>
+    <tr><td><strong>Embedding</strong></td><td>1:1 or 1:few, read-heavy</td><td>Post with comments array</td></tr>
+    <tr><td><strong>Referencing</strong></td><td>1:many, write-heavy</td><td>User → Orders (separate collections)</td></tr>
+</table>
+
+<h4>Embedding Example</h4>
+<pre>
+{
+  title: "My Blog Post",
+  author: "Alice",
+  content: "...",
+  comments: [
+    { user: "Bob", text: "Great!" },
+    { user: "Charlie", text: "Thanks!" }
+  ]
+}
+</pre>
+
+<h4>Referencing Example</h4>
+<pre>
+// users collection
+{ _id: 1, name: "Alice" }
+
+// orders collection
+{ _id: 101, userId: 1, items: ["book"], total: 29.99 }
+</pre>
+
+<div class="tip">
+    <strong>Document size limit:</strong> 16 MB. Avoid huge embeds.
+</div>
+
+<hr>
+
+<h3>Create and Drop Database</h3>
+
+<h4>Create Database</h4>
+<pre>
+use schoolDB
+db.students.insertOne({ name: "Rahul", grade: "A" })  // DB created
+show dbs
+</pre>
+
+<h4>Drop Database</h4>
+<pre>
+use schoolDB
+db.dropDatabase()
+</pre>
+
+<!-- =================================== UNIT 2 =================================== -->
+<h2>Unit 2: MongoDB Collection & Documents</h2>
+
+<h3>Introduction to Collection</h3>
+<p>A <strong>collection</strong> is a group of MongoDB documents. It is <strong>schemaless</strong> by default.</p>
+
+<h4>Collection vs SQL Table</h4>
+<table>
+    <tr><th>Feature</th><th>MongoDB Collection</th><th>SQL Table</th></tr>
+    <tr><td>Schema</td><td>Dynamic</td><td>Fixed</td></tr>
+    <tr><td>Rows</td><td>Documents (BSON)</td><td>Rows</td></tr>
+    <tr><td>Joins</td><td>$lookup or app-level</td><td>JOIN</td></tr>
+    <tr><td>Creation</td><td>Implicit on insert</td><td>CREATE TABLE</td></tr>
+</table>
+
+<hr>
+
+<h3>Create and Drop Collection</h3>
+
+<h4>Create Collection</h4>
+<pre>
+// Implicit
+db.products.insertOne({ name: "Laptop" })
+
+// Explicit with options
+db.createCollection("logs", {
+  capped: true,
+  size: 1048576,      // 1 MB
+  max: 1000
+})
+
+db.createCollection("sensorData", {
+  timeseries: {
+    timeField: "timestamp",
+    metaField: "deviceId",
+    granularity: "minutes"
+  }
+})
+</pre>
+
+<h4>Drop Collection</h4>
+<pre>
+db.products.drop()
+</pre>
+
+<hr>
+
+<h3>Operations on MongoDB (CRUD)</h3>
+
+<h4>Insert Document</h4>
+<pre>
+db.inventory.insertOne({
+  item: "notebook",
+  qty: 50,
+  tags: ["office", "stationery"]
+})
+
+db.inventory.insertMany([
+  { item: "pen", qty: 100 },
+  { item: "eraser", qty: 200 }
+])
+</pre>
+
+<h4>Read (Find) Documents</h4>
+<pre>
+// All documents
+db.inventory.find()
+
+// With filter
+db.inventory.find({ qty: { $gt: 50 } })
+
+// Projection
+db.inventory.find({}, { item: 1, qty: 1, _id: 0 })
+
+// Pretty print
+db.inventory.find().pretty()
+</pre>
+
+<h4>Update Document</h4>
+<pre>
+// Update one
+db.inventory.updateOne(
+  { item: "pen" },
+  { $set: { status: "active" }, $inc: { qty: 10 } }
+)
+
+// Update many
+db.inventory.updateMany(
+  { qty: { $lt: 30 } },
+  { $set: { lowStock: true } }
+)
+
+// Replace entire document
+db.inventory.replaceOne(
+  { item: "eraser" },
+  { item: "eraser", qty: 150, inStock: true }
+)
+</pre>
+
+<h4>Delete Document</h4>
+<pre>
+// Delete one
+db.inventory.deleteOne({ status: "inactive" })
+
+// Delete many
+db.inventory.deleteMany({ qty: 0 })
+
+// Delete all
+db.inventory.deleteMany({})
+</pre>
+
+<hr>
+
+<h3>Introduction to Document</h3>
+<p>A <strong>document</strong> is a BSON record with field-value pairs. It supports:</p>
+<ul>
+    <li>Nested objects</li>
+    <li>Arrays</li>
+    <li>Binary data</li>
+    <li>Geospatial data</li>
+    <li>Dates, ObjectId, etc.</li>
+</ul>
+
+<h4>Document Structure Example</h4>
+<pre>
+{
+  _id: ObjectId("671a4f3c9d8e7f001b2c3d4e"),
+  product: "Smartphone",
+  specs: {
+    ram: "8GB",
+    storage: "128GB",
+    camera: { mp: 48 }
+  },
+  inStock: true,
+  tags: ["mobile", "android", "5G"],
+  launchDate: ISODate("2025-01-15T00:00:00Z")
+}
+</pre>
+
+<h4>Document Rules</h4>
+<ul>
+    <li><strong>_id is mandatory</strong> and unique.</li>
+    <li>Max size: <strong>16 MB</strong>.</li>
+    <li>Field names cannot contain <code>.</code>, <code>$</code>, or null characters.</li>
+</ul>
+
+<hr>
+
+<div class="footer">
+    <h3>References & Further Reading</h3>
+    <ul style="list-style:none; padding:0;">
+        <li>Official MongoDB Manual: <a href="https://www.mongodb.com/docs/manual/">https://www.mongodb.com/docs/manual/</a></li>
+        <li>MongoDB Node.js Driver: <a href="https://www.mongodb.com/docs/drivers/node/current/">https://www.mongodb.com/docs/drivers/node/</a></li>
+        <li>MongoDB University (Free): <a href="https://university.mongodb.com">https://university.mongodb.com</a></li>
+        <li>GeeksforGeeks MongoDB: <a href="https://www.geeksforgeeks.org/mongodb-tutorial/">https://www.geeksforgeeks.org/mongodb-tutorial/</a></li>
+    </ul>
+</div>
+
+</div> <!-- End Container -->
+
+</body>
+</html>
