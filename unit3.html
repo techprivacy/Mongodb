@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unit 3 — Operations, Indexing & Backup</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body style="--accent:#16a085; --th:#16a085;">
+<div class="container">
+    <h1>Unit 3 — Operations, Indexing & Backup</h1>
+
+    <nav>
+        <a class="btn-home" href="index.html">Home</a>
+        <a class="btn-u1" href="unit1.html">Unit 1</a>
+        <a class="btn-u2" href="unit2.html">Unit 2</a>
+        <a class="btn-u3" href="unit3.html">Unit 3</a>
+    </nav>
+
+    <h2>Query Modifiers</h2>
+    <p><code>limit()</code> restricts number of documents; <code>sort()</code> orders results.</p>
+    <pre>// Return only 5 documents
+db.users.find().limit(5)
+
+// Sort by age descending
+db.users.find().sort({ age: -1 })</pre>
+
+    <h3>Indexing Basics</h3>
+    <p>Indexes improve query performance. Create them on fields used frequently in queries.</p>
+    <pre>// Single-field index
+db.users.createIndex({ email: 1 })
+
+// Compound index
+db.orders.createIndex({ customerId: 1, createdAt: -1 })</pre>
+
+    <h3>Backup & Restore</h3>
+    <pre>// Backup (mongodump)
+mongodump --uri='mongodb://localhost:27017' --out=./dump
+
+// Restore (mongorestore)
+mongorestore --uri='mongodb://localhost:27017' ./dump</pre>
+
+    <div class="footer">Return to <a href="index.html">Home</a> — or open Unit 1 / Unit 2 above.</div>
+</div>
+</body>
+</html>

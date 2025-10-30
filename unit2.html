@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unit 2 — Collections & Documents</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body style="--accent:#2980b9; --th:#2980b9;">
+<div class="container">
+    <h1>Unit 2 — Collections & Documents</h1>
+
+    <nav>
+        <a class="btn-home" href="index.html">Home</a>
+        <a class="btn-u1" href="unit1.html">Unit 1</a>
+        <a class="btn-u2" href="unit2.html">Unit 2</a>
+        <a class="btn-u3" href="unit3.html">Unit 3</a>
+    </nav>
+
+    <h2>Introduction to Collection</h2>
+    <p>A <strong>collection</strong> is a grouping of MongoDB documents. Collections live inside a database and are the equivalent of tables in relational databases, but they are schema-flexible (documents in a collection don't have to share the same fields or structure).</p>
+
+    <h3>Collection vs Table</h3>
+    <p>Key differences and trade-offs:</p>
+    <table>
+        <tr><th>Feature</th><th>Collection</th><th>SQL Table</th></tr>
+        <tr><td>Schema</td><td>Dynamic — documents can vary</td><td>Fixed — enforced by schema</td></tr>
+        <tr><td>Structure</td><td>Documents (BSON)</td><td>Rows (columns)</td></tr>
+        <tr><td>Joins</td><td>Use <code>$lookup</code> or embed documents</td><td>JOINs across tables</td></tr>
+        <tr><td>Scaling</td><td>Designed for horizontal sharding</td><td>Often vertical scaling</td></tr>
+    </table>
+
+    <h2>Create Collection</h2>
+    <p>Collections are created implicitly when you first insert a document into them. You can also create them explicitly with <code>db.createCollection()</code> when you need special options (capped collections, size limits, validation rules).</p>
+    <pre>// Implicit creation (first write creates collection)
+db.products.insertOne({ name: "Laptop", price: 999 })
+
+// Explicit creation with options
+ db.createCollection("logs", { capped: true, size: 1048576 })</pre>
+
+    <h2>Drop Collection</h2>
+    <p>To remove an entire collection and its data, use <code>db.collection.drop()</code>. This operation is irreversible — ensure you have backups if needed.</p>
+    <pre>// Drop the products collection
+db.products.drop()</pre>
+
+    <h2>Introduction to Documents</h2>
+    <p>A <strong>document</strong> is the basic unit of data in MongoDB — a BSON (Binary JSON) object. Documents are similar to JSON objects but support additional data types and are stored in a binary format for efficiency.</p>
+
+    <h3>Document Structure</h3>
+    <div class="example">
+        <p>Documents are composed of field-value pairs:</p>
+        <pre>{
+  field1: value1,
+  field2: value2,
+  field3: value3,
+  // ... more fields
+}</pre>
+        <ul>
+            <li>Each document requires a unique <code>_id</code> field (primary key).</li>
+            <li>If you don't provide <code>_id</code>, MongoDB adds an <code>ObjectId</code> automatically.</li>
+            <li>Documents in the same collection can have different fields (schema flexibility).</li>
+            <li><strong>Max document size:</strong> 16 MB per document.</li>
+        </ul>
+    </div>
+
+    <h3>BSON Data Types</h3>
+    <table>
+        <tr><th>Type</th><th>Description</th><th>Example</th></tr>
+        <tr><td>String</td><td>UTF-8 string</td><td><code>"Hello"</code></td></tr>
+        <tr><td>Integer</td><td>32 or 64-bit integer</td><td><code>42</code></td></tr>
+        <tr><td>Double</td><td>64-bit floating-point</td><td><code>3.14159</code></td></tr>
+        <tr><td>Boolean</td><td>true/false</td><td><code>true</code></td></tr>
+        <tr><td>Date</td><td>Milliseconds since epoch</td><td><code>new Date()</code></td></tr>
+        <tr><td>ObjectId</td><td>12-byte identifier</td><td><code>ObjectId("...")</code></td></tr>
+        <tr><td>Array</td><td>List of values</td><td><code>["a", "b", "c"]</code></td></tr>
+        <tr><td>Object</td><td>Embedded document</td><td><code>{ "x": 1 }</code></td></tr>
+        <tr><td>Null</td><td>Null value</td><td><code>null</code></td></tr>
+    </table>
+
+    <h3>Field Name Rules</h3>
+    <div class="note">
+        <ul>
+            <li>Field names are case-sensitive</li>
+            <li>Cannot contain <code>\0</code> (null character)</li>
+            <li>Cannot start with <code>$</code> (reserved for operators)</li>
+            <li>Cannot contain <code>.</code> (dot) (used for accessing nested fields)</li>
+            <li><code>_id</code> is reserved for the primary key</li>
+        </ul>
+    </div>
+
+    <h3>Document Example</h3>
+    <pre>{
+  _id: ObjectId("507f1f77bcf86cd799439011"),
+  username: "john_doe",
+  profile: {
+    firstName: "John",
+    lastName: "Doe",
+    age: 30,
+    email: "john@example.com"
+  },
+  tags: ["developer", "mongodb", "javascript"],
+  lastLogin: new Date("2025-10-31"),
+  isActive: true,
+  loginCount: NumberInt(42),
+  metadata: null
+}</pre>
+
+    <div class="tip">
+        <strong>Best Practices:</strong>
+        <ul>
+            <li>Use descriptive field names that reflect the data's purpose.</li>
+            <li>Consider document growth when designing your schema.</li>
+            <li>Use arrays for one-to-few relationships (embedded documents).</li>
+            <li>Keep document size under 16MB to avoid splitting.</li>
+        </ul>
+    </div>
+
+    <h2>Operations on Collections (CRUD and more)</h2>
+    <p>Common operations you will use with collections.</p>
+
+    <h4>Insert Documents</h4>
+    <pre>// Insert one document
+db.inventory.insertOne({ item: "pen", qty: 100 })
+
+// Insert many documents
+db.inventory.insertMany([
+  { item: "notebook", qty: 200 },
+  { item: "eraser", qty: 500 }
+])</pre>
+
+    <h4>Query / Find</h4>
+    <pre>// Find all documents
+ db.inventory.find()
+
+// Find with filter and projection
+ db.inventory.find({ qty: { $gt: 50 } }, { item: 1, qty: 1, _id: 0 }).pretty()
+
+// Count results
+ db.inventory.countDocuments({ qty: { $gt: 50 } })</pre>
+
+    <h4>Update Documents</h4>
+    <p>Use update operators to modify fields rather than replacing whole documents (unless you intend to replace).</p>
+    <pre>// Update one document using $set
+ db.inventory.updateOne({ item: "pen" }, { $set: { status: "active" } })
+
+// Update many documents using $inc
+ db.inventory.updateMany({ qty: { $lt: 30 } }, { $inc: { qty: 10 } })
+
+// Replace a document entirely
+ db.inventory.replaceOne({ _id: ObjectId("...") }, { item: "pen", qty: 120 })
+
+// Upsert (update or insert)
+ db.inventory.updateOne({ item: "marker" }, { $set: { qty: 50 } }, { upsert: true })</pre>
+
+    <h4>Delete Documents</h4>
+    <pre>// Delete one
+db.inventory.deleteOne({ status: "inactive" })
+
+// Delete many
+db.inventory.deleteMany({ qty: 0 })</pre>
+
+    <h4>Bulk Operations</h4>
+    <p>For high-performance writes, use <code>bulkWrite()</code> to group operations:</p>
+    <pre>db.collection.bulkWrite([
+  { insertOne: { document: { a: 1 } } },
+  { updateOne: { filter: { a: 1 }, update: { $set: { b: 1 } } } },
+  { deleteOne: { filter: { a: 2 } } }
+])</pre>
+    <div class="footer">Return to <a href="index.html">Home</a> — or open Unit 1 / Unit 3 above.</div>
+</div>
+</body>
+</html>
