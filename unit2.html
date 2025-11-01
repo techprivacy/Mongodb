@@ -63,19 +63,94 @@ db.products.drop()</pre>
         </ul>
     </div>
 
-    <h3>BSON Data Types</h3>
-    <table>
-        <tr><th>Type</th><th>Description</th><th>Example</th></tr>
-        <tr><td>String</td><td>UTF-8 string</td><td><code>"Hello"</code></td></tr>
-        <tr><td>Integer</td><td>32 or 64-bit integer</td><td><code>42</code></td></tr>
-        <tr><td>Double</td><td>64-bit floating-point</td><td><code>3.14159</code></td></tr>
-        <tr><td>Boolean</td><td>true/false</td><td><code>true</code></td></tr>
-        <tr><td>Date</td><td>Milliseconds since epoch</td><td><code>new Date()</code></td></tr>
-        <tr><td>ObjectId</td><td>12-byte identifier</td><td><code>ObjectId("...")</code></td></tr>
-        <tr><td>Array</td><td>List of values</td><td><code>["a", "b", "c"]</code></td></tr>
-        <tr><td>Object</td><td>Embedded document</td><td><code>{ "x": 1 }</code></td></tr>
-        <tr><td>Null</td><td>Null value</td><td><code>null</code></td></tr>
-    </table>
+    <h3>BSON Data Types (detailed)</h3>
+
+    <p>The BSON (Binary JSON) type system is richer than plain JSON. Below are the common BSON types with what they mean, how they are stored internally, typical sizes/limits, examples and driver notes.</p>
+
+    <h4>String</h4>
+    <p>UTF-8 encoded text. Stored as: <code>int32 length + utf8 bytes + \x00</code>. Size depends on string length (1 byte per ASCII char, more for multi-byte UTF-8).</p>
+    <pre>// Shell example
+db.users.insertOne({ name: "Alice", bio: "Loves databases" })</pre>
+    <p><strong>Notes:</strong> Good for searchable text; consider text indexes for full-text search. MongoDB stores the length prefix so very long strings increase document size.</p>
+
+    <h4>Integer (Int32 / Int64 / NumberLong)</h4>
+    <p>Numeric integer types: Int32 (4 bytes) and Int64/NumberLong (8 bytes). Internally stored as fixed-size binary integers.</p>
+    <pre>// Int32 (by default in many drivers)
+{ count: 42 }  // Int32 uses 4 bytes
+// Int64 explicitly
+{ bigCount: NumberLong("9007199254740992") }  // 8 bytes</pre>
+    <p><strong>Notes:</strong> Use Int64 when values can exceed 32-bit range. JavaScript Number is a double; many drivers provide helper types (NumberLong) to preserve 64-bit integers.</p>
+
+    <h4>Double (64-bit floating point)</h4>
+    <p>IEEE 754 64-bit floating point (8 bytes). Used for fractional numbers and most numeric computations in JavaScript environments.</p>
+    <pre>{ price: 19.95 }  // stored as Double (8 bytes)</pre>
+    <p><strong>Notes:</strong> Beware floating-point rounding; for financial values consider <code>Decimal128</code>.</p>
+
+    <h4>Decimal128</h4>
+    <p>128-bit decimal-based floating point (IEEE 754-2008 Decimal128). Stored as 16 bytes and preserves decimal precision for money and high-precision calculations.</p>
+    <pre>// Shell example
+db.orders.insertOne({ amount: NumberDecimal("12345.67") })</pre>
+    <p><strong>Notes:</strong> Preferred for financial data. Not all query operators behave identically for Decimal128 vs Double; be consistent in your schema.</p>
+
+    <h4>Boolean</h4>
+    <p>Single byte (<code>0x00</code> for false, <code>0x01</code> for true).</p>
+    <pre>{ isActive: true }</pre>
+
+    <h4>Date</h4>
+    <p>Stored as a 64-bit signed integer representing milliseconds since the Unix epoch (UTC). Internal storage size: 8 bytes.</p>
+    <pre>{ createdAt: new Date() }</pre>
+    <p><strong>Notes:</strong> Returned to drivers as native date/time objects (e.g., JS Date). For high-resolution or ordering across clusters, also consider <code>Timestamp</code>.</p>
+
+    <h4>Timestamp</h4>
+    <p>Special internal BSON type used for replication and internal MongoDB purposes; composed of an unsigned 32-bit increment and an unsigned 32-bit seconds value (8 bytes total).</p>
+    <pre>// Typical use is internal, but visible in documents created by some drivers/tools
+{ ts: Timestamp(1620000000, 1) }</pre>
+    <p><strong>Notes:</strong> Don't use Timestamp for general-purpose dates; prefer <code>Date</code>. Timestamps are primarily for internal replication oplog use.</p>
+
+    <h4>ObjectId</h4>
+    <p>12-byte BSON type used as the default <code>_id</code>. Structure: 4-byte timestamp (seconds), 5-byte random value (or machine+pid), 3-byte increment. Total: 12 bytes.</p>
+    <pre>{ _id: ObjectId("507f1f77bcf86cd799439011") }</pre>
+    <p><strong>Notes:</strong> Encodes creation time and provides good uniqueness without coordination. Can be used for sorting by creation time; avoid relying on ObjectId for business semantics.</p>
+
+    <h4>Binary (BinData)</h4>
+    <p>Arbitrary byte arrays. Stored as: length + subtype + raw bytes. Useful for images, encrypted blobs, or driver-specific binary types.</p>
+    <pre>{ avatar: BinData(0, "...base64...") }</pre>
+    <p><strong>Notes:</strong> For large files prefer GridFS. Choose appropriate subtype when driver interoperability matters.</p>
+
+    <h4>Array</h4>
+    <p>Ordered list of values. Internally stored as a document with integer string keys ("0", "1", ...). Size varies with contents.</p>
+    <pre>{ tags: ["mongodb", "nosql", "db"] }</pre>
+    <p><strong>Notes:</strong> Arrays are powerful but can complicate indexing and updates; use <code>$elemMatch</code> and array-specific operators.</p>
+
+    <h4>Embedded Document (Object)</h4>
+    <p>Documents may contain other documents (nested objects). Stored as a nested BSON document.</p>
+    <pre>{ profile: { firstName: "Alice", age: 28 } }</pre>
+    <p><strong>Notes:</strong> Embed for one-to-few relationships; reference for one-to-many or when sub-documents grow unbounded.</p>
+
+    <h4>Null</h4>
+    <p>Represents a null value (no value). Stored as a specific BSON null type (1 byte).</p>
+    <pre>{ metadata: null }</pre>
+
+    <h4>Regular Expression</h4>
+    <p>BSON stores regexes as a pattern string and options string. Useful for pattern matching queries.</p>
+    <pre>{ slug: /mongo.*db/i }</pre>
+
+    <h4>JavaScript / Code</h4>
+    <p>BSON supports embedding JavaScript code with optional scope (an object). Mostly historical; use carefully due to security and driver support differences.</p>
+    <pre>{ validator: function(doc) { return doc.age > 0 } }</pre>
+
+    <h4>MinKey / MaxKey</h4>
+    <p>Special internal types used for queries and index boundary markers. Not commonly stored in application documents.</p>
+
+    <hr>
+    <p><strong>Driver & index notes</strong></p>
+    <ul>
+        <li>Drivers map BSON types to native language types. Be explicit in your schema when precision matters (e.g., use NumberLong or Decimal128).</li>
+        <li>Index size and ordering depend on the stored BSON representation — strings and binary fields can make indexes large quickly.</li>
+        <li>Consistent typing across documents improves index selectivity and avoids surprising query behavior.</li>
+    </ul>
+
+    <p>If you'd like, I can add small examples for specific drivers (Node.js, Python) or add a summarized printable reference card for Unit 2.</p>
 
     <h3>Field Name Rules</h3>
     <div class="note">
