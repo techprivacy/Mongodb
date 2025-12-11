@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unit 5 — Node.js Modules & Core APIs</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body style="--accent:#8e44ad; --th:#8e44ad;">
+<div class="container">
+    <h1>Unit 5 — JavaScript with MongoDB</h1>
+
+    <nav class="nav-units">
+        <a class="btn-home" href="index.html">Home</a>
+        <a class="btn-u1" href="unit1.html">Unit 1</a>
+        <a class="btn-u2" href="unit2.html">Unit 2</a>
+        <a class="btn-u3" href="unit3.html">Unit 3</a>
+        <a class="btn-u4" href="unit4.html">Unit 4</a>
+        <a class="btn-u5" href="unit5.html">Unit 5</a>
+    </nav>
+
+    <h2>Overview: Integrating JavaScript with MongoDB</h2>
+    <p>MongoDB is a scalable NoSQL document database using collections and documents (not tables) to handle structured and unstructured data. A MongoDB + JavaScript (Node.js) connection lets your web apps interactively read, write, and manipulate data.</p>
+
+    <h3>MongoDB JavaScript (Node.js) Configuration Steps</h3>
+    <ol>
+        <li><strong>Install Node.js and the MongoDB driver:</strong> <code>npm install mongodb</code>.</li>
+        <li><strong>Create a cluster and get connection info:</strong> use MongoDB Atlas (or local URI).</li>
+        <li><strong>Import MongoClient:</strong> <code>const { MongoClient } = require('mongodb');</code></li>
+        <li><strong>Create your primary function:</strong> wrap connection logic in an async function.</li>
+        <li><strong>List databases:</strong> call <code>client.db().admin().listDatabases()</code> to verify access.</li>
+        <li><strong>Implement your script:</strong> use the connection to perform CRUD operations.</li>
+    </ol>
+
+    <h2>Setup</h2>
+    <ol>
+        <li>Install dependencies:
+            <pre>npm init -y
+npm install mongodb</pre>
+        </li>
+        <li>Create a reusable connection helper (<code>db.js</code>):
+            <pre>// db.js
+const { MongoClient } = require('mongodb');
+const uri = 'mongodb://localhost:27017';
+const client = new MongoClient(uri);
+
+async function getDb() {
+  if(!client.topology || !client.topology.isConnected()) {
+    await client.connect();
+  }
+  return client.db('appdb');
+}
+
+module.exports = { getDb, client };</pre>
+        </li>
+    </ol>
+
+    <h2>Create Documents</h2>
+    <pre>// create.js
+const { getDb, client } = require('./db');
+
+async function run() {
+  const db = await getDb();
+  const products = db.collection('products');
+
+  // Insert one
+  await products.insertOne({ name: 'Laptop', price: 1200, tags: ['electronics'] });
+
+  // Insert many
+  await products.insertMany([
+    { name: 'Mouse', price: 25 },
+    { name: 'Keyboard', price: 80 }
+  ]);
+
+  console.log('Inserted docs');
+  await client.close();
+}
+
+run().catch(console.error);</pre>
+
+    <h2>Read Documents</h2>
+    <pre>// read.js
+const { getDb, client } = require('./db');
+
+async function run() {
+  const db = await getDb();
+  const products = db.collection('products');
+
+  // Find all
+  const all = await products.find({}).toArray();
+  console.log('All products', all);
+
+  // Filter + projection
+  const cheap = await products.find(
+    { price: { $lt: 100 } },
+    { projection: { _id: 0, name: 1, price: 1 } }
+  ).toArray();
+  console.log('Cheap products', cheap);
+
+  await client.close();
+}
+
+run().catch(console.error);</pre>
+
+    <h2>Update Documents</h2>
+    <pre>// update.js
+const { getDb, client } = require('./db');
+
+async function run() {
+  const db = await getDb();
+  const products = db.collection('products');
+
+  // Update one
+  await products.updateOne(
+    { name: 'Laptop' },
+    { $set: { price: 1150 } }
+  );
+
+  // Update many
+  await products.updateMany(
+    { price: { $lt: 50 } },
+    { $inc: { price: 5 } }
+  );
+
+  console.log('Updated docs');
+  await client.close();
+}
+
+run().catch(console.error);</pre>
+
+    <h2>Delete Documents</h2>
+    <pre>// delete.js
+const { getDb, client } = require('./db');
+
+async function run() {
+  const db = await getDb();
+  const products = db.collection('products');
+
+  // Delete one
+  await products.deleteOne({ name: 'Mouse' });
+
+  // Delete many
+  await products.deleteMany({ price: { $lt: 30 } });
+
+  console.log('Deleted docs');
+  await client.close();
+}
+
+run().catch(console.error);</pre>
+
+    <h2>Best Practices</h2>
+    <ul>
+        <li>Reuse a single MongoClient per process; avoid connecting for every request.</li>
+        <li>Handle errors with try/catch and always close the client in error paths.</li>
+        <li>Use environment variables for connection strings and credentials.</li>
+        <li>Add indexes on frequent filters and sorts (e.g., <code>products.createIndex({ price: 1 })</code>).</li>
+        <li>Validate input before writing to the database; use JSON Schema validation where appropriate.</li>
+    </ul>
+
+    <div class="footer">Return to <a href="index.html">Home</a> — or open other units above.</div>
+</div>
+</body>
+</html>

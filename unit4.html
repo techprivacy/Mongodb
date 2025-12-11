@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unit 4 — Introduction to Node.js</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body style="--accent:#f39c12; --th:#f39c12;">
+<div class="container">
+    <h1>Unit 4 — Introduction to Node.js</h1>
+
+    <nav class="nav-units">
+        <a class="btn-home" href="index.html">Home</a>
+        <a class="btn-u1" href="unit1.html">Unit 1</a>
+        <a class="btn-u2" href="unit2.html">Unit 2</a>
+        <a class="btn-u3" href="unit3.html">Unit 3</a>
+        <a class="btn-u4" href="unit4.html">Unit 4</a>
+        <a class="btn-u5" href="unit5.html">Unit 5</a>
+    </nav>
+
+    <h2>What is Node.js?</h2>
+    <p>Node.js is a JavaScript runtime built on Chrome's V8 JavaScript engine that allows you to run JavaScript on the server. It uses an event-driven, non-blocking I/O model designed for building scalable network applications.</p>
+
+    <h2>Node.js Process Model</h2>
+    <p>Node.js runs on a single-threaded event loop with a libuv-based thread pool to handle asynchronous I/O. The main process executes JavaScript and schedules async operations; heavy CPU-bound work should be offloaded to worker threads or separate services.</p>
+
+    <h2>Advantages of Node.js</h2>
+    <ul>
+        <li>Fast execution (V8 engine)</li>
+        <li>Non-blocking I/O for high concurrency</li>
+        <li>Single language (JavaScript) across client and server</li>
+        <li>Large ecosystem via npm</li>
+        <li>Lightweight and suitable for microservices and APIs</li>
+    </ul>
+
+    <h2>Traditional Web Server Model vs Node.js</h2>
+    <p>Traditional threaded servers (e.g., Apache) spawn a thread/process per connection. Node.js uses a single-threaded event loop and non-blocking I/O so it can handle many concurrent connections efficiently without spawning large numbers of threads.</p>
+
+    <h2>Install Node.js on Windows</h2>
+    <ol>
+        <li>Download the Windows installer from <a href="https://nodejs.org/en/download/">nodejs.org</a> (LTS recommended).</li>
+        <li>Run the MSI and follow the prompts. Ensure "Add to PATH" is enabled.</li>
+        <li>Verify installation in PowerShell:
+            <pre>node -v
+npm -v</pre>
+        </li>
+    </ol>
+
+    <h2>Working in REPL</h2>
+    <p>Run <code>node</code> (or <code>node --experimental-repl-await</code> / newer features) to enter the REPL. You can evaluate expressions, require modules, and test small snippets interactively.</p>
+
+    <h2>Node.js Console</h2>
+    <p>Use <code>console.log</code>, <code>console.error</code>, <code>console.dir</code> for logging. For structured logging, prefer a logging package like <code>winston</code> or <code>pino</code>.</p>
+
+    <h2>What is npm?</h2>
+    <p>npm (Node Package Manager) is the default package manager for Node.js. It installs packages from the npm registry, manages dependencies, and stores metadata in <code>package.json</code>.</p>
+
+    <h3>Installing packages locally</h3>
+    <pre>// Initialize project
+npm init -y
+
+// Install a package locally (saved to package.json)
+npm install express --save
+    </pre>
+
+    <h3>Adding dependency in package.json</h3>
+    <p>After <code>npm install</code>, <code>package.json</code> gains an entry under <code>dependencies</code>. You can edit the file manually or use <code>npm install pkg@version</code>.</p>
+
+    <h3>Installing package globally</h3>
+    <pre>// Install CLI tools globally
+npm install -g nodemon
+    </pre>
+
+    <h3>Updating packages</h3>
+    <pre>// Update a specific package
+npm update lodash
+
+// Check outdated packages
+npm outdated
+
+// Update major versions carefully (may require manual changes)
+npm install pkg@latest
+    </pre>
+
+        <h2>JSON & REST API</h2>
+        <h3>Introduction to JSON</h3>
+        <p>JSON (JavaScript Object Notation) is a lightweight data-interchange format based on key-value pairs. MongoDB stores documents as BSON, which extends JSON with additional types.</p>
+
+        <h3>Uses of JSON</h3>
+        <ul>
+                <li>Data interchange between clients and servers</li>
+                <li>Configuration files</li>
+                <li>APIs and microservices</li>
+        </ul>
+
+        <h3>JSON Datatype & Object</h3>
+        <pre>{
+    "_id": "507f1f77bcf86cd799439011",
+    "username": "john_doe",
+    "age": 30,
+    "tags": ["mongodb", "api"]
+}</pre>
+
+        <h3>JSON Schemas</h3>
+        <p>JSON Schema allows you to declare validation rules for JSON documents. MongoDB supports JSON Schema validation in <code>collMod</code> or when creating collections.</p>
+        <pre>// Example validator when creating a collection
+db.createCollection('users', {
+    validator: {
+        $jsonSchema: {
+            bsonType: 'object',
+            required: ['username', 'email'],
+            properties: {
+                username: { bsonType: 'string' },
+                email: { bsonType: 'string' },
+                age: { bsonType: 'int', minimum: 0 }
+            }
+        }
+    }
+});</pre>
+
+        <h3>Introduction to REST API & Architecture</h3>
+        <p>REST (Representational State Transfer) is an architectural style for web services. Key principles: statelessness, resource-based URIs, use of standard HTTP methods, and hypermedia where applicable.</p>
+        <div style="text-align:center; margin: 16px 0;">
+            <img src="https://miro.medium.com/1*m3jEkdc9SKTK6vNPhRHCqg.jpeg" alt="REST architecture flow" style="max-width:100%; border:1px solid #ddd; border-radius:8px; box-shadow:0 2px 6px rgba(0,0,0,0.1);">
+            <div style="font-size:0.9em; color:#7f8c8d; margin-top:6px;">REST architecture overview</div>
+        </div>
+
+        <h3>REST Architecture Core Ideas</h3>
+        <ul>
+                <li><strong>Stateless:</strong> each request is self-contained; the server does not remember client state.</li>
+                <li><strong>Resources with URIs:</strong> everything is a resource with a stable identifier (e.g., <code>/notes/123</code>).</li>
+                <li><strong>Uniform interface:</strong> use standard HTTP verbs (<code>GET</code>, <code>POST</code>, <code>PUT</code>, <code>PATCH</code>, <code>DELETE</code>) and status codes.</li>
+                <li><strong>Representations:</strong> clients exchange representations of resources (JSON, sometimes XML/HTML).</li>
+                <li><strong>Cacheable:</strong> responses indicate cacheability to reduce load and latency.</li>
+                <li><strong>Layered system:</strong> proxies, gateways, and load balancers can sit between client and server.</li>
+                <li><strong>HATEOAS (optional):</strong> responses can include links to related actions/resources.</li>
+        </ul>
+
+        <h3>HTTP Methods</h3>
+        <ul>
+                <li>GET — retrieve resources</li>
+                <li>POST — create resources</li>
+                <li>PUT/PATCH — update resources (PUT = full replace, PATCH = partial update)</li>
+                <li>DELETE — remove resources</li>
+        </ul>
+
+        <h3>HTTP Responses</h3>
+        <p>Use appropriate status codes: 200 OK, 201 Created, 204 No Content, 400 Bad Request, 404 Not Found, 500 Internal Server Error.</p>
+
+        <h3>Creating REST — Simple Express + MongoDB Example</h3>
+        <p>This minimal example creates a small REST API to manage a <code>notes</code> collection. Save as <code>app.js</code> and run <code>node app.js</code> after installing dependencies (<code>npm install express mongodb</code>).</p>
+        <pre>// app.js
+const express = require('express');
+const { MongoClient, ObjectId } = require('mongodb');
+
+const app = express();
+app.use(express.json());
+
+const uri = 'mongodb://localhost:27017';
+const client = new MongoClient(uri);
+let notesColl;
+
+async function start(){
+    await client.connect();
+    const db = client.db('test');
+    notesColl = db.collection('notes');
+    app.listen(3000, ()=> console.log('API listening on http://localhost:3000'));
+}
+
+// Create
+app.post('/notes', async (req, res) => {
+    const doc = req.body;
+    const result = await notesColl.insertOne(doc);
+    res.status(201).json({ insertedId: result.insertedId });
+});
+
+// Read all
+app.get('/notes', async (req, res) => {
+    const list = await notesColl.find({}).toArray();
+    res.json(list);
+});
+
+// Read one
+app.get('/notes/:id', async (req, res) => {
+    const id = req.params.id;
+    const doc = await notesColl.findOne({ _id: ObjectId(id) });
+    if(!doc) return res.status(404).send('Not found');
+    res.json(doc);
+});
+
+// Update
+app.patch('/notes/:id', async (req, res) => {
+    const id = req.params.id;
+    const update = { $set: req.body };
+    await notesColl.updateOne({ _id: ObjectId(id) }, update);
+    res.status(204).end();
+});
+
+// Delete
+app.delete('/notes/:id', async (req, res) => {
+    const id = req.params.id;
+    await notesColl.deleteOne({ _id: ObjectId(id) });
+    res.status(204).end();
+});
+
+start().catch(err => { console.error(err); process.exit(1); });</pre>
+
+        <h3>Testing REST — Postman</h3>
+        <p>Use Postman (or curl) to test endpoints. Example curl commands:</p>
+        <pre>// Create
+curl -X POST http://localhost:3000/notes -H "Content-Type: application/json" -d "{ \"title\": \"My note\", \"body\": \"Hello\" }"
+
+// List
+curl http://localhost:3000/notes
+
+// Get one
+curl http://localhost:3000/notes/<id>
+
+// Update
+curl -X PATCH http://localhost:3000/notes/<id> -H "Content-Type: application/json" -d "{ \"title\": \"Updated\" }"
+
+// Delete
+curl -X DELETE http://localhost:3000/notes/<id>
+</pre>
+
+        <h3>Creating Application based on REST API with JavaScript and MongoDB</h3>
+        <p>Steps to build a small application:</p>
+        <ol>
+                <li>Scaffold project: <code>npm init -y</code> and install <code>express</code> and <code>mongodb</code>.</li>
+                <li>Create routes for CRUD operations (see example above).</li>
+                <li>Use CORS and body parsing for browser-based clients (<code>npm install cors</code>).</li>
+                <li>Secure the API: validate input, add authentication (JWT), and enable HTTPS in production.</li>
+                <li>Deploy: containerize or use cloud services (Heroku, VPS, or serverless functions).</li>
+        </ol>
+
+        <div class="footer">Return to <a href="index.html">Home</a> — or open other units above.</div>
+</div>
+</body>
+</html>

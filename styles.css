@@ -40,10 +40,23 @@ h3 { color: #16a085; font-size: 1.4em; margin-top: 1.5em; border-bottom: 1px das
 h4 { color: #2980b9; font-size: 1.2em; margin-top: 1.2em; }
 nav { text-align: center; margin: 12px 0; }
 nav a { margin: 0 8px; padding: 8px 12px; text-decoration: none; border-radius: 6px; color: white; }
+.nav-units {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  background: #ecf0f1;
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid #dfe6e9;
+}
+.nav-units a { color: white; }
 .btn-home { background: #7f8c8d; }
 .btn-u1 { background: var(--accent); }
 .btn-u2 { background: #2980b9; }
 .btn-u3 { background: #16a085; }
+.btn-u4 { background: #f39c12; }
+.btn-u5 { background: #8e44ad; }
 .note { background: #fffbe6; border-left: 5px solid #f39c12; padding: 12px; margin: 1.2em 0; border-radius: 0 4px 4px 0; font-style: italic; }
 .tip { background: #e8f4fd; border-left: 5px solid #3498db; padding: 12px; margin: 1.2em 0; border-radius: 0 4px 4px 0; }
 .example { background: #f4f4f4; border: 1px dashed #95a5a6; padding: 12px; margin: 1em 0; border-radius: 4px; }

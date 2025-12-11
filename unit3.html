@@ -10,35 +10,75 @@
 <div class="container">
     <h1>Unit 3 — Operations, Indexing & Backup</h1>
 
-    <nav>
+    <nav class="nav-units">
         <a class="btn-home" href="index.html">Home</a>
         <a class="btn-u1" href="unit1.html">Unit 1</a>
         <a class="btn-u2" href="unit2.html">Unit 2</a>
         <a class="btn-u3" href="unit3.html">Unit 3</a>
+        <a class="btn-u4" href="unit4.html">Unit 4</a>
+        <a class="btn-u5" href="unit5.html">Unit 5</a>
     </nav>
 
     <h2>Query Modifiers</h2>
-    <p><code>limit()</code> restricts number of documents; <code>sort()</code> orders results.</p>
-    <pre>// Return only 5 documents
+    <p><code>limit()</code> controls result size to reduce network and client work; <code>sort()</code> defines order so you can paginate predictably.</p>
+    <pre>// Return only 5 documents (fast previews, dashboards)
 db.users.find().limit(5)
 
-// Sort by age descending
-db.users.find().sort({ age: -1 })</pre>
+// Sort by age descending (with an index on age for speed)
+db.users.find().sort({ age: -1 })
+
+// Paginate efficiently (skip is okay for small pages; prefer ranges for deep pages)
+db.users.find({ createdAt: { $lt: ISODate("2024-01-01") } })
+        .sort({ createdAt: -1 })
+        .limit(10)</pre>
 
     <h3>Indexing Basics</h3>
-    <p>Indexes improve query performance. Create them on fields used frequently in queries.</p>
-    <pre>// Single-field index
+    <p>Indexes use B-tree structures to avoid full collection scans. Match index shape to your most common filters and sorts.</p>
+    <pre>// Single-field index (equality lookups)
 db.users.createIndex({ email: 1 })
 
-// Compound index
-db.orders.createIndex({ customerId: 1, createdAt: -1 })</pre>
+// Compound index (supports equality on customerId + sort on createdAt)
+db.orders.createIndex({ customerId: 1, createdAt: -1 })
+
+// Multikey index for array fields
+db.articles.createIndex({ tags: 1 })
+
+// Partial index (only active docs)
+db.users.createIndex(
+  { lastLogin: -1 },
+  { partialFilterExpression: { isActive: true } }
+)
+
+// Unique index to enforce data integrity
+db.users.createIndex({ email: 1 }, { unique: true })</pre>
+
+    <p><strong>Index tips:</strong> put equality fields first, then range, then sort fields; avoid redundant overlaps; monitor with <code>db.collection.getIndexes()</code> and <code>db.currentOp()</code>; remove unused indexes to save RAM and write cost.</p>
 
     <h3>Backup & Restore</h3>
-    <pre>// Backup (mongodump)
+    <pre>// Logical backup (portable, smaller)
 mongodump --uri='mongodb://localhost:27017' --out=./dump
 
-// Restore (mongorestore)
-mongorestore --uri='mongodb://localhost:27017' ./dump</pre>
+// Restore
+mongorestore --uri='mongodb://localhost:27017' ./dump
+
+// Filesystem/LVM snapshot (fast, consistent with journaling + fsyncLock)
+db.fsyncLock()
+# take snapshot
+db.fsyncUnlock()
+
+// Cloud/managed: Atlas continuous backups or snapshots</pre>
+
+    <p><strong>Backup notes:</strong> test restores regularly; keep offsite copies; coordinate backups with replica sets (run on secondaries); document RPO/RTO targets.</p>
+
+    <h3>Managing Large Datasets</h3>
+    <ul>
+        <li><strong>Sharding:</strong> distribute data horizontally; pick a shard key with high cardinality and even write distribution.</li>
+        <li><strong>Archiving/TTL:</strong> move cold data to cheaper storage or expire with TTL indexes.</li>
+        <li><strong>Projections:</strong> return only needed fields to cut payload size.</li>
+        <li><strong>Pagination strategy:</strong> prefer range/seek pagination over deep <code>skip</code>.</li>
+        <li><strong>Schema design:</strong> embed when access patterns are bounded; reference when growth is unbounded.</li>
+        <li><strong>Monitoring:</strong> watch cache hit rate, index usage (<code>explain()</code>), and slow query logs.</li>
+    </ul>
 
     <div class="footer">Return to <a href="index.html">Home</a> — or open Unit 1 / Unit 2 above.</div>
 </div>
