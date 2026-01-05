@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Hello 👋</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- Bootstrap 5 CDN -->
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+  >
+</head>
+<body class="bg-light">
+
+  <div class="container mt-5">
+    <div class="card shadow-sm">
+      <div class="card-body text-center">
+        <h1 class="mb-3">Hello 👋</h1>
+        <p class="text-muted">Your system details are captured below</p>
+
+        <hr>
+
+        <ul class="list-group text-start">
+          <li class="list-group-item">
+            <strong>IP Address:</strong>
+            <span id="ip">Fetching...</span>
+          </li>
+          <li class="list-group-item">
+            <strong>User Agent:</strong>
+            <span id="ua"></span>
+          </li>
+          <li class="list-group-item">
+            <strong>Browser:</strong>
+            <span id="browser"></span>
+          </li>
+          <li class="list-group-item">
+            <strong>Operating System:</strong>
+            <span id="os"></span>
+          </li>
+          <li class="list-group-item">
+            <strong>Platform:</strong>
+            <span id="platform"></span>
+          </li>
+          <li class="list-group-item">
+            <strong>Language:</strong>
+            <span id="language"></span>
+          </li>
+          <li class="list-group-item">
+            <strong>Screen Size:</strong>
+            <span id="screen"></span>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // User Agent
+    const ua = navigator.userAgent;
+    document.getElementById("ua").innerText = ua;
+
+    // Platform & Language
+    document.getElementById("platform").innerText = navigator.platform;
+    document.getElementById("language").innerText = navigator.language;
+
+    // Screen Size
+    document.getElementById("screen").innerText =
+      screen.width + " x " + screen.height;
+
+    // Basic Browser Detection
+    function detectBrowser() {
+      if (ua.includes("Chrome")) return "Chrome";
+      if (ua.includes("Firefox")) return "Firefox";
+      if (ua.includes("Safari")) return "Safari";
+      if (ua.includes("Edge")) return "Edge";
+      return "Unknown";
+    }
+
+    // Basic OS Detection
+    function detectOS() {
+      if (ua.includes("Windows")) return "Windows";
+      if (ua.includes("Mac")) return "MacOS";
+      if (ua.includes("Linux")) return "Linux";
+      if (ua.includes("Android")) return "Android";
+      if (ua.includes("iPhone")) return "iOS";
+      return "Unknown";
+    }
+
+    document.getElementById("browser").innerText = detectBrowser();
+    document.getElementById("os").innerText = detectOS();
+
+    // Fetch IP Address
+    fetch("https://api.ipify.org?format=json")
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById("ip").innerText = data.ip;
+      })
+      .catch(() => {
+        document.getElementById("ip").innerText = "Unavailable";
+      });
+  </script>
+
+</body>
+</html>
